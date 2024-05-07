@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.egg-info/PKG-INFO
+ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.egg-info/SOURCES.txt
+ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.egg-info/dependency_links.txt
+ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.egg-info/top_level.txt

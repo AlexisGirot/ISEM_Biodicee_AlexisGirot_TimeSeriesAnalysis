@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: ISEM-Biodicee-AlexisGirot-TimeSeriesAnalysis
+Version: 0.0.1
+Summary: Tools for analysing easily ecological time series
+Home-page: UNKNOWN
+Author: Alexis GIROT
+Author-email: <alexis.girot@normalesup.org>
+License: UNKNOWN
+Keywords: python,Time series analysis,Resilience,Classification
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+License-File: LICENSE
+
+Tools for analysing easily ecological time series, classify them and compute resilience indicators.
+
