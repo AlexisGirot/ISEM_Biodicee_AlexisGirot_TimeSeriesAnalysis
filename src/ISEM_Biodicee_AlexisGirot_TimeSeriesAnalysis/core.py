@@ -417,7 +417,7 @@ class TS_list(object):
         cm = sklearn.metrics.confusion_matrix(y_true = l_expected, y_pred = l_infered, normalize = "true", labels=labels)
         
         if ax is None:
-                ax = plt.gca()
+            ax = plt.gca()
         
         #im = ax.imshow(cm, cmap = plt.cm.Blues)
         cmd = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = labels)
@@ -515,7 +515,7 @@ class TS_list(object):
         
         return pl
     
-    def mc_classify(self, method = "aic_asd", asd_thr = 0.1):
+    def mc_classify(self, method = "aic_asd", asd_thr = 0.1, min_len = 20):
         """
         Classify the time series using Mathieu's code in a multicore framework
         
@@ -529,15 +529,20 @@ class TS_list(object):
         None
         """
         
+        #Keep only long enough time series
+        to_classify = {ts_id:ts for ts_id, ts in self.time_series.items() if len(ts["id"]) >= min_len}
+        
         # Divide the time series list in the number of cpus, then run the classification as usual
         nb_cpu = multiprocessing.cpu_count()
         TS_sublists = []
-        l_id = list(self.time_series.keys())
+        l_id = list(to_classify.keys())
+        
         for i in range(nb_cpu-1):
-            sublist = {ide:self.time_series[ide] for ide in l_id[i * len(l_id) // nb_cpu:(i+1) * len(l_id) // nb_cpu - 1] }
+            sublist = {ide:to_classify[ide] for ide in l_id[i * (len(l_id) // nb_cpu):(i+1) * (len(l_id) // nb_cpu)] }
             TS_sublists.append(TS_list(sublist))
 
-        sublist = {ide:self.time_series[ide] for ide in l_id[(nb_cpu - 1) * len(l_id) // nb_cpu:]}
+
+        sublist = {ide:to_classify[ide] for ide in l_id[(nb_cpu - 1) * (len(l_id) // nb_cpu):]}
         TS_sublists.append(TS_list(sublist))
         
 
@@ -552,7 +557,10 @@ class TS_list(object):
         for i in range(1,len(TS_sublists)):
             self.classification["outlist"].update(l_classif[i]["outlist"])
             for k in self.classification["traj_ts_full"].keys():
-                self.classification["traj_ts_full"][k] += l_classif[i]["traj_ts_full"][k]
+                if k in l_classif[i]["traj_ts_full"]:
+                    self.classification["traj_ts_full"][k] += l_classif[i]["traj_ts_full"][k]
+        
+        return self.classification
             
             
     def log_transform(self):
@@ -573,8 +581,127 @@ class TS_list(object):
     
         self.name = self.name + " (log transformed)"
     
+    def __getitem__(self, index):
+        """
+        Subset the time series list, depending on the argument type
+        
+        Parameters
+        ----------
+        index : * slice : slices all the time series
+                * dict : keeps only the time series fulfilling the conditions (eg : {"expected_traj":"quadratic"})
+        
+        Returns
+        -------
+        None
+        """
+        
+        
+        if type(index) == slice: #Subset every time series
+            new_ts_list =  TS_list(data = {ts_id:{col_id:col[index] for col_id, col in ts.items()} for ts_id, ts in self.time_series.items()},
+                           name = self.name,
+                           is_log_transformed = self.is_log_transformed)
+            
+            new_ts_list.df_list = None
+            new_ts_list.asd_thr = self.asd_thr
+            new_ts_list.classification = None
+            new_ts_list.saved_time_series = None
+        
+        elif type(index) == dict:
+            new_data = {}
+            for ts_id, ts in self.time_series.items():
+                fulfills_condition = True
+                for col_id, col_val in index.items():
+                    if ts[col_id][0] != col_val:
+                        fulfills_condition = False
+                if fulfills_condition:
+                    new_data[ts_id] = ts
+                    
+            new_ts_list = TS_list(data = new_data,
+                           name = self.name,
+                           is_log_transformed = self.is_log_transformed)
+        
+        else:
+            raise TypeError(f"Non implemented type: {type(index)}")
+            
+        
+        return new_ts_list
     
     
-    
-    
-    
+    def __truediv__(self, other):
+        """
+        Provides the confusion matrix comparing the classes infered from two classifications of the same time series
+        
+        Parameters
+        ----------
+        other : TS_list
+        
+        Returns
+        -------
+        np.ndarray
+        """
+        
+        if self.classification is None or other.classification is None:
+            raise Exception("At least one of the time series lists has not been classified yet. Please run the classification before trying to analyse its results.")
+        
+        
+        if self.classification["outlist"].keys() != other.classification["outlist"].keys():
+            raise Exception("The two time series lists are not identical.")
+        
+        l_other = []
+        l_self = []
+        
+        for ts_id in self.classification["outlist"].keys(): #Heavy syntax but robust to changes in the dict orders
+            l_other.append(other.classification["outlist"][ts_id]["best_traj"]["class"])
+            l_self.append(self.classification["outlist"][ts_id]["best_traj"]["class"])
+        
+        
+        labels = [] # Labels in the right order
+        for x in l_other:
+            if len(labels) < len(set(l_other)) and x not in labels:
+                labels.append(x)
+                
+        cm = sklearn.metrics.confusion_matrix(y_true = l_other, y_pred = l_self, normalize = "true", labels=labels)
+        
+        return cm
+
+    def __floordiv__(self, other):
+        """
+        Provides the confusion matrix comparing the abruptness infered for two classifications of a same time series list
+        
+        Parameters
+        ----------
+        other : TS_list
+        
+        Returns
+        -------
+        np.ndarray
+        """
+        
+        if self.classification is None or other.classification is None:
+            raise Exception("At least one of the time series lists has not been classified yet. Please run the classification before trying to analyse its results.")
+        
+        
+        if self.classification["outlist"].keys() is not other.classification["outlist"].keys():
+            raise Exception("The two time series lists are not identical.")
+        
+        l_other = []
+        l_self = []
+        
+        for ts_id in self.classification["outlist"].keys(): #Heavy syntax but robust to changes in the dict orders
+            l_other.append(other.classification["outlist"][ts_id]["best_traj"]["class"])
+            l_self.append(self.classification["outlist"][ts_id]["best_traj"]["class"])
+        
+        for i in range(len(l_expected)):
+            if l_other[i] != "abrupt":
+                l_other[i] = "non-abrupt"
+            if l_self[i] != "abrupt":
+                l_self[i] = "non-abrupt"
+        
+        labels = [] # Labels in the right order
+        for x in l_other:
+            if len(labels) < len(set(l_other)) and x not in labels:
+                labels.append(x)
+                
+        cm = sklearn.metrics.confusion_matrix(y_true = l_other, y_pred = l_self, normalize = "true", labels=labels)
+        
+        return cm
