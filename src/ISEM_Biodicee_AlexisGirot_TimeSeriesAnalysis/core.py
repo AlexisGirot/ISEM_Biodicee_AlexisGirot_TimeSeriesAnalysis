@@ -48,11 +48,18 @@ def rpy2_to_python(rpy2_object):
         except ValueError:
             return_container = list(rpy2_object)
     elif str(type(rpy2_object)) == "<class 'pandas.core.series.Series'>":
-        return_container = list(rpy2_object)[0]
-        if str(type(return_container)) == "<class 'rpy2.rinterface_lib.sexp.NACharacterType'>":
-            return_container = "NA"
+        return_container = list([x for x in rpy2_object])
+        for i in range(len(return_container)):
+            if str(type(return_container[i])) in ("<class 'rpy2.rinterface_lib.sexp.NACharacterType'>", "<class 'rpy2.rinterface_lib.sexp.NALogicalType'>"):
+                return_container[i] = "NA"
+        if len(return_container) == 1:
+            return_container = return_container[0]
+        
     elif str(type(rpy2_object)) in ("<class 'numpy.ndarray'>", "<class 'rpy2.robjects.vectors.BoolVector'>"):
         return_container = list(rpy2_object)
+        for i in range(len(return_container)):
+            if str(type(return_container[i])) in ("<class 'rpy2.rinterface_lib.sexp.NALogicalType'>", "<class 'rpy2.rinterface_lib.sexp.NACharacterType'>"):
+                return_container[i] = "NA"
     else:
         raise Exception(f"Non implemented type: {type(rpy2_object)}")
 
@@ -138,7 +145,7 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, to_keep =
                         
                         if to_keep is not None:
                             for column in to_keep:
-                                data[ide][to_keep] = row[to_keep]
+                                data[ide][column] = row[column]
     
     else:
         raise ValueError(f"Method {method} not implemented.")
@@ -277,11 +284,12 @@ class TS_list(object):
         -------
         dict : Need to return for the parralel computation to work
         """
-        
         if self.df_list is None:
+            print(f"{self.name}: Building self.df_list")
             self.df_list = dict_to_dataframes(self.time_series)
         
         self.asd_thr = asd_thr
+        print(f"{self.name}: Running the classification")
         self.classification = robjects.r.run_classif_data(\
                                   df_list = self.df_list,\
                                   str = method,\
@@ -294,11 +302,14 @@ class TS_list(object):
                                   variable = "Y",\
                                   save_plot=False)
         
+        print(f"{self.name}: Converting back to python")
         with(robjects.default_converter + pandas2ri.converter).context():
             self.classification = robjects.conversion.get_conversion().rpy2py(self.classification)
         
+        print(f"{self.name}: Unnesting data frames")
         self.classification = rpy2_to_python(self.classification)
         
+        print(f"{self.name}: Returning the result")
         return self.classification
     
     def save(self, file, saving_name = None):
@@ -453,10 +464,11 @@ class TS_list(object):
         ax.plot(X, Y, linetype)
         if self.is_log_transformed:
             ax.set_title(time_series_id + " (log transformed)")
+            ax.set_ylabel("State, log transformed (arb. u.)")
         else:
             ax.set_title(time_series_id)
+            ax.set_ylabel("State (arb. u.)")
         ax.set_xlabel("Time (arb. u.)")
-        ax.set_ylabel("State (arb. u.)")
             
         return ax
 
@@ -529,21 +541,24 @@ class TS_list(object):
         None
         """
         
+        self.asd_thr = asd_thr
+        
         #Keep only long enough time series
         to_classify = {ts_id:ts for ts_id, ts in self.time_series.items() if len(ts["id"]) >= min_len}
         
         # Divide the time series list in the number of cpus, then run the classification as usual
         nb_cpu = multiprocessing.cpu_count()
+        nb_cpu = min(nb_cpu, len(to_classify)) #In case there are very few time series
         TS_sublists = []
         l_id = list(to_classify.keys())
         
         for i in range(nb_cpu-1):
             sublist = {ide:to_classify[ide] for ide in l_id[i * (len(l_id) // nb_cpu):(i+1) * (len(l_id) // nb_cpu)] }
-            TS_sublists.append(TS_list(sublist))
+            TS_sublists.append(TS_list(data = sublist, name = f"Sublist {i}"))
 
 
         sublist = {ide:to_classify[ide] for ide in l_id[(nb_cpu - 1) * (len(l_id) // nb_cpu):]}
-        TS_sublists.append(TS_list(sublist))
+        TS_sublists.append(TS_list(data = sublist, name = f"Sublist {nb_cpu-1}"))
         
 
         with multiprocessing.Pool() as pool:
@@ -662,6 +677,20 @@ class TS_list(object):
                 
         cm = sklearn.metrics.confusion_matrix(y_true = l_other, y_pred = l_self, normalize = "true", labels=labels)
         
+        ax = plt.gca()
+        
+        #im = ax.imshow(cm, cmap = plt.cm.Blues)
+        cmd = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = labels)
+
+        pl = cmd.plot(ax=ax, cmap = plt.cm.Blues)
+        #ax.set_title("Compare two classifications")
+        ax.set_xlabel(self.name)
+        ax.set_ylabel(other.name)
+        ax.set_xticks(ticks = range(len(labels)), labels = labels)
+        ax.set_yticks(ticks = range(len(labels)), labels = labels)
+        
+        return pl
+        
         return cm
 
     def __floordiv__(self, other):
@@ -681,7 +710,7 @@ class TS_list(object):
             raise Exception("At least one of the time series lists has not been classified yet. Please run the classification before trying to analyse its results.")
         
         
-        if self.classification["outlist"].keys() is not other.classification["outlist"].keys():
+        if self.classification["outlist"].keys() != other.classification["outlist"].keys():
             raise Exception("The two time series lists are not identical.")
         
         l_other = []
@@ -691,7 +720,7 @@ class TS_list(object):
             l_other.append(other.classification["outlist"][ts_id]["best_traj"]["class"])
             l_self.append(self.classification["outlist"][ts_id]["best_traj"]["class"])
         
-        for i in range(len(l_expected)):
+        for i in range(len(l_other)):
             if l_other[i] != "abrupt":
                 l_other[i] = "non-abrupt"
             if l_self[i] != "abrupt":
@@ -704,4 +733,16 @@ class TS_list(object):
                 
         cm = sklearn.metrics.confusion_matrix(y_true = l_other, y_pred = l_self, normalize = "true", labels=labels)
         
-        return cm
+        ax = plt.gca()
+        
+        #im = ax.imshow(cm, cmap = plt.cm.Blues)
+        cmd = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = labels)
+
+        pl = cmd.plot(ax=ax, cmap = plt.cm.Blues)
+        #ax.set_title("Compare two classifications")
+        ax.set_xlabel(self.name)
+        ax.set_ylabel(other.name)
+        ax.set_xticks(ticks = range(len(labels)), labels = labels)
+        ax.set_yticks(ticks = range(len(labels)), labels = labels)
+        
+        return pl
