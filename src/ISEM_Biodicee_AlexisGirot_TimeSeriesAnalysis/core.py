@@ -604,6 +604,7 @@ class TS_list(object):
         ----------
         index : * slice : slices all the time series
                 * dict : keeps only the time series fulfilling the conditions (eg : {"expected_traj":"quadratic"})
+                * str : keeps only the time series for which the index appears in the id
         
         Returns
         -------
@@ -627,8 +628,19 @@ class TS_list(object):
                 fulfills_condition = True
                 for col_id, col_val in index.items():
                     if ts[col_id][0] != col_val:
-                        fulfills_condition = False
+                            fulfills_condition = False
+
                 if fulfills_condition:
+                    new_data[ts_id] = ts
+                    
+            new_ts_list = TS_list(data = new_data,
+                           name = self.name,
+                           is_log_transformed = self.is_log_transformed)
+        
+        elif type(index) == str:
+            new_data = {}
+            for ts_id, ts in self.time_series.items():
+                if index in ts_id:
                     new_data[ts_id] = ts
                     
             new_ts_list = TS_list(data = new_data,
