@@ -242,6 +242,16 @@ class TS_list(object):
             else:
                 raise ValueError(f"Non implemented extension: {extension}")
         
+        
+        elif str(type(data)) == "<class 'ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list'>":
+            self.asd_thr = data.asd_thr
+            self.classification = data.classification
+            self.time_series = data.time_series
+            self.is_log_transformed = data.is_log_transformed
+            if self.name == "Some list of time series":
+                self.name = data.name
+        
+        
         else:
             raise ValueError(f"Type {type(data)} not implemented.")
     
@@ -442,7 +452,7 @@ class TS_list(object):
         
         return pl
 
-    def plot(self, time_series_id, ax = None, linetype = 'o-'):
+    def plot(self, time_series_id, ax = None, xlabel = "Time (arb. u.)", linetype = 'o-'):
         """
         Make a plot of the specified time series
         
@@ -468,7 +478,7 @@ class TS_list(object):
         else:
             ax.set_title(time_series_id)
             ax.set_ylabel("State (arb. u.)")
-        ax.set_xlabel("Time (arb. u.)")
+        ax.set_xlabel(xlabel)
             
         return ax
 
