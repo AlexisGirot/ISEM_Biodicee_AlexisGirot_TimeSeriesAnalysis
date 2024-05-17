@@ -452,13 +452,17 @@ class TS_list(object):
         
         return pl
 
-    def plot(self, time_series_id, ax = None, xlabel = "Time (arb. u.)", linetype = 'o-'):
+    def plot(self, time_series_id, ax = None, xlabel = "Time (arb. u.)", linetype = 'o-', title = None):
         """
         Make a plot of the specified time series
         
         Parameters
         ----------
+        time_series_id : tuple
         ax : subplot.ax
+        xlabel : str
+        linetype : str
+        title : str (the to_keep columb in which to fetch the title). If None, the time series id will be the title
         
         Returns
         -------
@@ -467,16 +471,25 @@ class TS_list(object):
         
         X = self.time_series[time_series_id]["X"]
         Y = self.time_series[time_series_id]["Y"]
+        
+        if title is None:
+            title = str(time_series_id)
+            
+        else:
+            if type(self.time_series[time_series_id][title]) is list:
+                title = self.time_series[time_series_id][title][0]
+            else:
+                title = self.time_series[time_series_id][title]
             
         if ax is None:
             ax = plt.gca()
             
         ax.plot(X, Y, linetype)
         if self.is_log_transformed:
-            ax.set_title(time_series_id + " (log transformed)")
+            ax.set_title(title + " (log transformed)")
             ax.set_ylabel("State, log transformed (arb. u.)")
         else:
-            ax.set_title(time_series_id)
+            ax.set_title(title)
             ax.set_ylabel("State (arb. u.)")
         ax.set_xlabel(xlabel)
             
