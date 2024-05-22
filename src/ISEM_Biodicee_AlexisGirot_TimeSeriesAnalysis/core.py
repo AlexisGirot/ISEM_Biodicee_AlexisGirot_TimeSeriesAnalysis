@@ -714,7 +714,7 @@ class TS_list(object):
         
         Returns
         -------
-        np.ndarray
+        subplot
         """
         
         if self.classification is None or other.classification is None:
@@ -735,6 +735,10 @@ class TS_list(object):
         labels = [] # Labels in the right order
         for x in l_other:
             if len(labels) < len(set(l_other)) and x not in labels:
+                labels.append(x)
+
+        for x in l_self:
+            if x not in labels:
                 labels.append(x)
                 
         cm = sklearn.metrics.confusion_matrix(y_true = l_other, y_pred = l_self, normalize = "true", labels=labels)
@@ -765,7 +769,7 @@ class TS_list(object):
         
         Returns
         -------
-        np.ndarray
+        subplot
         """
         
         if self.classification is None or other.classification is None:
@@ -791,6 +795,10 @@ class TS_list(object):
         labels = [] # Labels in the right order
         for x in l_other:
             if len(labels) < len(set(l_other)) and x not in labels:
+                labels.append(x)
+        
+        for x in l_self:
+            if x not in labels:
                 labels.append(x)
                 
         cm = sklearn.metrics.confusion_matrix(y_true = l_other, y_pred = l_self, normalize = "true", labels=labels)
