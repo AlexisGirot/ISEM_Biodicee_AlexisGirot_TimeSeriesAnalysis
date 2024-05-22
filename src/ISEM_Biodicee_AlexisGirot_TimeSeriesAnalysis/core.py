@@ -1,3 +1,8 @@
+"""
+The core of the package. Defines the TS_list class as well as utilitary functions.
+"""
+
+
 #Import python packages
 import numpy as np
 import csv
@@ -281,7 +286,7 @@ class TS_list(object):
         
         return ax
     
-    def classify(self, method = "aic_asd", asd_thr = 0.1):
+    def classify(self, method = "aic_asd", asd_thr = 0.1, min_len = 20):
         """
         Classify the time series using Mathieu's code
         
@@ -289,6 +294,7 @@ class TS_list(object):
         ----------
         method : str
         asd_thr : float in [0,1]
+        min_len : int
         
         Returns
         -------
@@ -302,6 +308,7 @@ class TS_list(object):
         print(f"{self.name}: Running the classification")
         self.classification = robjects.r.run_classif_data(\
                                   df_list = self.df_list,\
+                                  min_len = min_len,\
                                   str = method,\
                                   asd_thr = asd_thr,\
                                   run_loo = False,\
@@ -350,7 +357,7 @@ class TS_list(object):
     
     def bar_plot(self, ax = None):
         """
-        Make a plot of the different infered classes
+        Make a plot of the different infered classes. The color can indicate the potentially missed shifts
         
         Parameters
         ----------
@@ -366,36 +373,56 @@ class TS_list(object):
         
         else:
             # Count
-            l_class = [ts["best_traj"]["class"] for ts in self.classification["outlist"].values()]
+            l_id = self.classification["outlist"].keys()
+            l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
+#             l_class = [ts["best_traj"]["class"] for ts in self.classification["outlist"].values()]
             classes = []
             counts = []
+            missed_counts = []
 
             for cl in set(l_class):
                 classes.append(cl)
                 counts.append(len([x for x in l_class if x == cl]))
+                missed_counts.append(len([ts_id for ts_id in l_id if self.classification["outlist"][ts_id]["best_traj"]["class"] == cl and self.classification["outlist"][ts_id]["res"]["n_brk_asd"] > 0]))
+                
             
             # Order the list for more understandable plot
             order = ["no_change", "linear", "quadratic", "abrupt"]
-            classes, counts = zip(*sorted(zip(classes, counts), key = lambda x:order.index(x[0])))
+            classes, counts, missed_counts = zip(*sorted(zip(classes, counts, missed_counts), key = lambda x:order.index(x[0])))
             
             # Bar plot
             if ax is None:
                 ax = plt.gca()
             
-            graph = ax.bar(classes, counts)
+            counts = np.array(counts)
+            missed_counts = np.array(missed_counts)
             
-            i = 0
-            for bar in graph:
-                width = bar.get_width()
-                height = bar.get_height()
-                x, y = bar.get_xy()
+            bottom = 0
+            graph1 = ax.bar(classes, counts - missed_counts, bottom = bottom)
+            if max(missed_counts) != 0: # To render nier plots when there is no missed shift (eg if asd_thr = 1)
+                bottom = counts - missed_counts
+                graph2 = ax.bar(classes, missed_counts, bottom = bottom)
+            
+            
+            #i = 0
+            for i in range(len(classes)):
+                bar1 = graph1[i]
+                if max(missed_counts) != 0:
+                    bar2 = graph2[i]
+                width = bar1.get_width()
+                if max(missed_counts) != 0:
+                    height = bar1.get_height() + bar2.get_height()
+                else:
+                    height = bar1.get_height()
+                x, y = bar1.get_xy()
                 ax.text(x+width/2,
                         y+height*1.01,
                         f"{counts[i]/np.sum(counts)*100:.2f}%",
                         ha="center",
                         weight="bold")
-                i += 1
+                #i += 1
             
+            ax.legend(["No brkpoint", "Brkpoint"])
             ax.set_title(self.name)
             ax.set_xlabel("Infered class")
             ax.set_ylabel("Number of time series")
@@ -585,7 +612,7 @@ class TS_list(object):
         
 
         with multiprocessing.Pool() as pool:
-            l_classif = pool.map(functools.partial(TS_list.classify, method = method, asd_thr = asd_thr), TS_sublists)
+            l_classif = pool.map(functools.partial(TS_list.classify, method = method, asd_thr = asd_thr, min_len = min_len), TS_sublists)
         
 
         
