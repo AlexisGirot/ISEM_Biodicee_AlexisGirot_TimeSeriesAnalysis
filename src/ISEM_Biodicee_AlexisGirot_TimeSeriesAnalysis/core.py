@@ -71,7 +71,7 @@ def rpy2_to_python(rpy2_object):
     
     return return_container
 
-def load_data(file, method, delimiter = ',', cols = None, rows = None, to_keep = None):
+def load_data(file, method, delimiter = ',', cols = None, rows = None, col_time = None, to_keep = None):
     """
     Load the data in file f and format it in a form suitable for analysis
     
@@ -80,12 +80,14 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, to_keep =
     file : file object
             Should point to a .csv file
     method : str
-            Possible values: "by_col", 'by_row'
+            Possible values: "by_col", 'by_row', 'each_col'
     delimiter : char
     cols : {"id":(str, str, ...), "time":str, "Y":str}
             When using the "by_col" method
     rows = {"id:(str, str, ...)", "time":[str, str, str]}
             When using the "by_row" method
+    col_time : str
+            When using the "each_col" method
     to_keep = (str, str, ...)
             A list of columns to keep
     
@@ -94,7 +96,7 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, to_keep =
     dict{dicts{numpy.ndarrays}} = {id:{"scen":np.ndarray, "X":np.ndarray, "Y":np.ndarray}}
     """
     
-    reader = csv.DictReader(file, delimiter = ',')
+    reader = csv.DictReader(file, delimiter = delimiter)
     
     data = {}
     
@@ -151,6 +153,22 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, to_keep =
                         if to_keep is not None:
                             for column in to_keep:
                                 data[ide][column] = row[column]
+    
+    elif method == "each_col":
+        if col_time is None:
+            raise ValueError("No time column was provided.")
+        
+        for row in reader:
+            for k in row.keys():
+                if k != col_time and row[k] not in ("NULL", "NA"):
+                    if k not in data:
+                        data[k] = {"id":[k],
+                                   "X":[int(row[col_time])],
+                                   "Y":[float(row[k])]}
+                    else:
+                        data[k]["id"].append(k)
+                        data[k]["X"].append(int(row[col_time]))
+                        data[k]["Y"].append(float(row[k]))
     
     else:
         raise ValueError(f"Method {method} not implemented.")
@@ -210,7 +228,7 @@ def unstr_name(name):
         return tuple(tup)
 
 class TS_list(object):
-    def __init__(self, data, method = None, delimiter = ',', cols = None, rows = None, to_keep = None, name = "Some list of time series", is_log_transformed = False):
+    def __init__(self, data, method = None, delimiter = ',', cols = None, rows = None, col_time = None, to_keep = None, name = "Some list of time series", is_log_transformed = False):
         self.name = name
         self.df_list = None
         self.asd_thr = None
@@ -227,7 +245,7 @@ class TS_list(object):
             
             
             if extension == "csv":
-                self.time_series = load_data(file = data, method = method, delimiter = delimiter, cols = cols, rows = rows, to_keep = to_keep)
+                self.time_series = load_data(file = data, method = method, delimiter = delimiter, cols = cols, rows = rows, col_time = col_time, to_keep = to_keep)
             
             
             elif extension == "json":
