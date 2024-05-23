@@ -160,7 +160,7 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, col_time 
         
         for row in reader:
             for k in row.keys():
-                if k != col_time and row[k] not in ("NULL", "NA"):
+                if k != col_time and row[k] not in ("NULL", "NA", ""):
                     if k not in data:
                         data[k] = {"id":[k],
                                    "X":[int(row[col_time])],
