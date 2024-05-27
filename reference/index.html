@@ -1358,8 +1358,8 @@
               <td><code><a class="autorefs autorefs-internal" title="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.classify" href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.classify">classify</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>str = "aic_asd", asd_thr:float = 0.1, min_len:int = 20) :
-    Classifies the time series in four classes: no_change, linear, quadratic, abrupt</p>
+                  <pre><code>Classifies the time series in four classes: no_change, linear, quadratic, abrupt
+</code></pre>
                 </div>
               </td>
             </tr>
@@ -1367,8 +1367,8 @@
               <td><code><a class="autorefs autorefs-internal" title="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.save" href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.save">save</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>str= None) -&gt; None:
-    Saves a time series lsit and the classification results to a file</p>
+                  <pre><code>Saves a time series lsit and the classification results to a file
+</code></pre>
                 </div>
               </td>
             </tr>
@@ -1394,8 +1394,8 @@
               <td><code><a class="autorefs autorefs-internal" title="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.plot" href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.plot">plot</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>tuple, ax = None, xlabel: str = "Time (arb. u.)", linetype: str = 'o-', title: str = None):
-    Plots a time series from the list, the ID of which has to be specified</p>
+                  <pre><code>Plots a time series from the list, the ID of which has to be specified
+</code></pre>
                 </div>
               </td>
             </tr>
@@ -2142,15 +2142,15 @@
 <span class="sd">    Methods:</span>
 <span class="sd">    	hist(self, ax = None, nb_bins = 20) :</span>
 <span class="sd">    		Displays a histogram of the length of the time series</span>
-<span class="sd">    	classify(self, method:str = &quot;aic_asd&quot;, asd_thr:float = 0.1, min_len:int = 20) :</span>
+<span class="sd">    	classify(self, method = &quot;aic_asd&quot;, asd_thr = 0.1, min_len = 20) :</span>
 <span class="sd">    		Classifies the time series in four classes: no_change, linear, quadratic, abrupt</span>
-<span class="sd">    	save(self, file, saving_name: str= None) -&gt; None:</span>
+<span class="sd">    	save(self, file, saving_name = None) -&gt; None:</span>
 <span class="sd">    		Saves a time series lsit and the classification results to a file</span>
 <span class="sd">    	bar_plot(self, ax = None):</span>
 <span class="sd">    		Displays the classification results as a bar plot of the percentage of the time series falling in each class</span>
 <span class="sd">    	confusion_matrix(self, expected_class_column, ax = None):</span>
 <span class="sd">    		Compares the classification to an expected classification when there is one</span>
-<span class="sd">    	plot(self, time_series_id: tuple, ax = None, xlabel: str = &quot;Time (arb. u.)&quot;, linetype: str = &#39;o-&#39;, title: str = None):</span>
+<span class="sd">    	plot(self, time_series_id, ax = None, xlabel = &quot;Time (arb. u.)&quot;, linetype = &#39;o-&#39;, title = None):</span>
 <span class="sd">    		Plots a time series from the list, the ID of which has to be specified</span>
 <span class="sd">    	confusion_matrix_abruptness(self, expected_class_column, ax = None):</span>
 <span class="sd">    		Compares the  abruptness classification to the expected abruptness when there is one</span>
