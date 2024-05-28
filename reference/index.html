@@ -5089,7 +5089,7 @@ It is necessary for the package to work, but appart from specific usages you sho
 
 
 <h2 id="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">resave</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">TS_l</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saving_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">resave</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">TS_l</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">col_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saving_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -5147,6 +5147,71 @@ It is necessary for the package to work, but appart from specific usages you sho
             </td>
             <td>
                 <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>delimiter</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>same as delimiter arg of TS_list</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;,&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>method</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>same as method arg of TS_list</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>cols</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>same as cols arg of TS_list</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>rows</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>same as rows arg of TS_list</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>col_time</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>same as col_time arg of TS_list</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -5219,7 +5284,12 @@ It is necessary for the package to work, but appart from specific usages you sho
 <span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
-<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">resave</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">TS_l</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">to_keep</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">saving_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">resave</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">TS_l</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">to_keep</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">col_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">saving_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save again when a file has not been saved properly</span>
 
@@ -5227,6 +5297,11 @@ It is necessary for the package to work, but appart from specific usages you sho
 <span class="sd">    	f_out : file object</span>
 <span class="sd">    	TS_l : TS_list</span>
 <span class="sd">    	data : same as data arg of TS_list</span>
+<span class="sd">    	delimiter : same as delimiter arg of TS_list</span>
+<span class="sd">    	method : same as method arg of TS_list</span>
+<span class="sd">    	cols : same as cols arg of TS_list</span>
+<span class="sd">    	rows : same as rows arg of TS_list</span>
+<span class="sd">    	col_time : same as col_time arg of TS_list</span>
 <span class="sd">    	to_keep : [&quot;str&quot;, &quot;str&quot;, &quot;str&quot;]</span>
 <span class="sd">    	saving_name : str</span>
 
@@ -5234,7 +5309,7 @@ It is necessary for the package to work, but appart from specific usages you sho
 <span class="sd">    	None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">TS_list</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="n">delimiter</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">,</span>  <span class="n">to_keep</span> <span class="o">=</span> <span class="n">to_keep</span><span class="p">)</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">TS_list</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="n">delimiter</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">,</span> <span class="n">col_time</span> <span class="o">=</span> <span class="n">col_time</span><span class="p">,</span> <span class="n">to_keep</span> <span class="o">=</span> <span class="n">to_keep</span><span class="p">)</span>
     <span class="n">TS_l</span><span class="o">.</span><span class="n">time_series</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">time_series</span>
     <span class="n">TS_l</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file</span> <span class="o">=</span> <span class="n">f_out</span><span class="p">,</span> <span class="n">saving_name</span> <span class="o">=</span> <span class="n">saving_name</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
