@@ -493,30 +493,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="mc_classify">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.mc_classify--parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Parameters
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.mc_classify--returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Returns
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -940,30 +916,6 @@
       mc_classify
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="mc_classify">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.mc_classify--parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Parameters
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.mc_classify--returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Returns
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -2030,7 +1982,11 @@
 <span class="normal">892</span>
 <span class="normal">893</span>
 <span class="normal">894</span>
-<span class="normal">895</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TS_list</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="normal">895</span>
+<span class="normal">896</span>
+<span class="normal">897</span>
+<span class="normal">898</span>
+<span class="normal">899</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TS_list</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class that represents a list of time series.</span>
 
@@ -2461,14 +2417,18 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Classify the time series using Mathieu&#39;s code in a multicore framework</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        method : str</span>
-<span class="sd">        asd_thr : float in [0,1]</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            method : str</span>
+<span class="sd">            asd_thr : float in [0,1]</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        	Classify the time series list ts_l with asd_thr = 0.15:</span>
+
+<span class="sd">        		ts_l.mc_classify(asd_thr = 0.15)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">asd_thr</span> <span class="o">=</span> <span class="n">asd_thr</span>
@@ -2733,11 +2693,7 @@
 
             <details class="quote">
               <summary>Source code in <code>src/ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis/core.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">839</span>
-<span class="normal">840</span>
-<span class="normal">841</span>
-<span class="normal">842</span>
-<span class="normal">843</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">843</span>
 <span class="normal">844</span>
 <span class="normal">845</span>
 <span class="normal">846</span>
@@ -2789,7 +2745,11 @@
 <span class="normal">892</span>
 <span class="normal">893</span>
 <span class="normal">894</span>
-<span class="normal">895</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="normal">895</span>
+<span class="normal">896</span>
+<span class="normal">897</span>
+<span class="normal">898</span>
+<span class="normal">899</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides the confusion matrix comparing the abruptness infered for two classifications of a same time series list</span>
 
@@ -2873,11 +2833,7 @@
 
             <details class="quote">
               <summary>Source code in <code>src/ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis/core.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">726</span>
-<span class="normal">727</span>
-<span class="normal">728</span>
-<span class="normal">729</span>
-<span class="normal">730</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">730</span>
 <span class="normal">731</span>
 <span class="normal">732</span>
 <span class="normal">733</span>
@@ -2928,7 +2884,11 @@
 <span class="normal">778</span>
 <span class="normal">779</span>
 <span class="normal">780</span>
-<span class="normal">781</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="normal">781</span>
+<span class="normal">782</span>
+<span class="normal">783</span>
+<span class="normal">784</span>
+<span class="normal">785</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Subset the time series list, depending on the argument type</span>
 
@@ -3009,11 +2969,7 @@
 
             <details class="quote">
               <summary>Source code in <code>src/ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis/core.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">784</span>
-<span class="normal">785</span>
-<span class="normal">786</span>
-<span class="normal">787</span>
-<span class="normal">788</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">788</span>
 <span class="normal">789</span>
 <span class="normal">790</span>
 <span class="normal">791</span>
@@ -3062,7 +3018,11 @@
 <span class="normal">834</span>
 <span class="normal">835</span>
 <span class="normal">836</span>
-<span class="normal">837</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="normal">837</span>
+<span class="normal">838</span>
+<span class="normal">839</span>
+<span class="normal">840</span>
+<span class="normal">841</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides the confusion matrix comparing the classes infered from two classifications of the same time series</span>
 
@@ -3976,11 +3936,7 @@ ts_l2.log_transform()
 </details>
             <details class="quote">
               <summary>Source code in <code>src/ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis/core.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">705</span>
-<span class="normal">706</span>
-<span class="normal">707</span>
-<span class="normal">708</span>
-<span class="normal">709</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">709</span>
 <span class="normal">710</span>
 <span class="normal">711</span>
 <span class="normal">712</span>
@@ -3995,7 +3951,11 @@ ts_l2.log_transform()
 <span class="normal">721</span>
 <span class="normal">722</span>
 <span class="normal">723</span>
-<span class="normal">724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    (Inplace) log transforms the Y data  </span>
 <span class="sd">    /!\ The initial data is not preserved /!\\</span>
@@ -4033,12 +3993,77 @@ ts_l2.log_transform()
     <div class="doc doc-contents ">
 
       <p>Classify the time series using Mathieu's code in a multicore framework</p>
-<h5 id="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.mc_classify--parameters">Parameters</h5>
-<p>method : str
-asd_thr : float in [0,1]</p>
-<h5 id="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.mc_classify--returns">Returns</h5>
-<p>None</p>
 
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>method</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>str</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;aic_asd&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>asd_thr</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>float in [0,1]</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.1</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>None</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p>Classify the time series list ts_l with asd_thr = 0.15:</p>
+<pre><code>    ts_l.mc_classify(asd_thr = 0.15)
+</code></pre>
+</details>
             <details class="quote">
               <summary>Source code in <code>src/ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis/core.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">654</span>
@@ -4089,18 +4114,26 @@ asd_thr : float in [0,1]</p>
 <span class="normal">699</span>
 <span class="normal">700</span>
 <span class="normal">701</span>
-<span class="normal">702</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">mc_classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;aic_asd&quot;</span><span class="p">,</span> <span class="n">asd_thr</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">min_len</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">mc_classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;aic_asd&quot;</span><span class="p">,</span> <span class="n">asd_thr</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">min_len</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Classify the time series using Mathieu&#39;s code in a multicore framework</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    method : str</span>
-<span class="sd">    asd_thr : float in [0,1]</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        method : str</span>
+<span class="sd">        asd_thr : float in [0,1]</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    None</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    	Classify the time series list ts_l with asd_thr = 0.15:</span>
+
+<span class="sd">    		ts_l.mc_classify(asd_thr = 0.15)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">asd_thr</span> <span class="o">=</span> <span class="n">asd_thr</span>
@@ -4816,7 +4849,7 @@ to_keep = (str, str, ...)
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">col_time</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;NULL&quot;</span><span class="p">,</span> <span class="s2">&quot;NA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">k</span><span class="p">,)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                         <span class="n">data</span><span class="p">[(</span><span class="n">k</span><span class="p">,)]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:[</span><span class="n">k</span><span class="p">],</span>
                                    <span class="s2">&quot;X&quot;</span><span class="p">:[</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_time</span><span class="p">])],</span>
                                    <span class="s2">&quot;Y&quot;</span><span class="p">:[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">])]}</span>
