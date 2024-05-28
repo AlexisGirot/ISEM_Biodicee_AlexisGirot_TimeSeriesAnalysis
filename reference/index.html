@@ -675,30 +675,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="resave">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave--parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Parameters
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave--returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Returns
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -1171,30 +1147,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="resave">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave--parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Parameters
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave--returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Returns
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -1421,7 +1373,7 @@
               <td><code><a class="autorefs autorefs-internal" title="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.log_transform" href="#ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.core.TS_list.log_transform">log_transform</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <pre><code>Applies y -&lt; ln(1+y) to the y data of all the time series
+                  <pre><code>Applies y -&gt; ln(1+y) to the y data of all the time series
 </code></pre>
                 </div>
               </td>
@@ -2157,7 +2109,7 @@
 <span class="sd">    	mc_classify(self, method = &quot;aic_asd&quot;, asd_thr = 0.1, min_len = 20):</span>
 <span class="sd">    		Classifies the data in parallel, taking advantage of the several cores of the machine used</span>
 <span class="sd">    	log_transform(self) -&gt; None:</span>
-<span class="sd">    		Applies y -&lt; ln(1+y) to the y data of all the time series</span>
+<span class="sd">    		Applies y -&gt; ln(1+y) to the y data of all the time series</span>
 <span class="sd">    	__getitem__(self, index):</span>
 <span class="sd">    		A tool for subsetting the list</span>
 <span class="sd">    	__truediv__(self, other):</span>
@@ -4831,7 +4783,7 @@ to_keep = (str, str, ...)
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">col_time</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;NULL&quot;</span><span class="p">,</span> <span class="s2">&quot;NA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                        <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:[</span><span class="n">k</span><span class="p">],</span>
+                        <span class="n">data</span><span class="p">[(</span><span class="n">k</span><span class="p">,)]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:[</span><span class="n">k</span><span class="p">],</span>
                                    <span class="s2">&quot;X&quot;</span><span class="p">:[</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_time</span><span class="p">])],</span>
                                    <span class="s2">&quot;Y&quot;</span><span class="p">:[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">])]}</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -5145,14 +5097,108 @@ It is necessary for the package to work, but appart from specific usages you sho
     <div class="doc doc-contents ">
 
       <p>Save again when a file has not been saved properly</p>
-<h4 id="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave--parameters">Parameters</h4>
-<p>f_out : file object
-TS_l : TS_list
-data : same as data arg of TS_list
-to_keep : ["str", "str", "str"]
-saving_name : str</p>
-<h4 id="ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis.cheatcode.resave--returns">Returns</h4>
-<p>None</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>f_out</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>file object</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>TS_l</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>TS_list</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>data</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>same as data arg of TS_list</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>to_keep</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>["str", "str", "str"]</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>saving_name</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>str</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>None</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
             <details class="quote">
               <summary>Source code in <code>src/ISEM_Biodicee_AlexisGirot_TimeSeriesAnalysis/cheatcode.py</code></summary>
@@ -5173,23 +5219,19 @@ saving_name : str</p>
 <span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">resave</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">TS_l</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">to_keep</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">saving_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">resave</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">TS_l</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">to_keep</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">saving_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save again when a file has not been saved properly</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    f_out : file object</span>
-<span class="sd">    TS_l : TS_list</span>
-<span class="sd">    data : same as data arg of TS_list</span>
-<span class="sd">    to_keep : [&quot;str&quot;, &quot;str&quot;, &quot;str&quot;]</span>
-<span class="sd">    saving_name : str</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    	f_out : file object</span>
+<span class="sd">    	TS_l : TS_list</span>
+<span class="sd">    	data : same as data arg of TS_list</span>
+<span class="sd">    	to_keep : [&quot;str&quot;, &quot;str&quot;, &quot;str&quot;]</span>
+<span class="sd">    	saving_name : str</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    None</span>
+<span class="sd">    Returns:</span>
+<span class="sd">    	None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ts</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">TS_list</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="n">delimiter</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">,</span>  <span class="n">to_keep</span> <span class="o">=</span> <span class="n">to_keep</span><span class="p">)</span>
