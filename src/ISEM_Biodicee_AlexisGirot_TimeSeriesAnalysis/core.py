@@ -414,12 +414,13 @@ class TS_list(object):
                    "classification":self.classification}\
                   , file)
     
-    def bar_plot(self, ax = None):
+    def bar_plot(self, ax = None, ref_classification = None):
         """
         Make a plot of the different infered classes. The color can indicate the potentially missed shifts
         
         Parameters:
             ax : The ax on which to plot
+            ref_classification : a reference with which to compare the classification (adds a color for time series that has changed class)
         
         Returns:
             Subplot
@@ -438,60 +439,165 @@ class TS_list(object):
             raise Exception("The data has not been classified yet. Please run the classification before trying to analyse its results.")
         
         else:
-            # Count
-            l_id = self.classification["outlist"].keys()
-            l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
-#             l_class = [ts["best_traj"]["class"] for ts in self.classification["outlist"].values()]
-            classes = []
-            counts = []
-            missed_counts = []
+            
+            
+            
+            
+            if ref_classification is None:
+                
+                # Count
+                l_id = self.classification["outlist"].keys()
+                l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
+                classes = []
+                counts = []
+                missed_counts = []
 
-            for cl in set(l_class):
-                classes.append(cl)
-                counts.append(len([x for x in l_class if x == cl]))
-                missed_counts.append(len([ts_id for ts_id in l_id if self.classification["outlist"][ts_id]["best_traj"]["class"] == cl and self.classification["outlist"][ts_id]["res"]["n_brk_asd"] > 0]))
+                for cl in set(l_class):
+                    classes.append(cl)
+                    counts.append(len([x for x in l_class if x == cl]))
+                    missed_counts.append(len([ts_id for ts_id in l_id if self.classification["outlist"][ts_id]["best_traj"]["class"] == cl and self.classification["outlist"][ts_id]["res"]["n_brk_asd"] > 0]))
                 
             
-            # Order the list for more understandable plot
-            order = ["no_change", "linear", "quadratic", "abrupt"]
-            classes, counts, missed_counts = zip(*sorted(zip(classes, counts, missed_counts), key = lambda x:order.index(x[0])))
+                # Order the list for more understandable plot
+                order = ["no_change", "linear", "quadratic", "abrupt"]
+                classes, counts, missed_counts = zip(*sorted(zip(classes, counts, missed_counts), key = lambda x:order.index(x[0])))
             
-            # Bar plot
-            if ax is None:
-                ax = plt.gca()
+                # Bar plot
+                if ax is None:
+                    ax = plt.gca()
             
-            counts = np.array(counts)
-            missed_counts = np.array(missed_counts)
+                counts = np.array(counts)
+                missed_counts = np.array(missed_counts)
             
-            bottom = 0
-            graph1 = ax.bar(classes, counts - missed_counts, bottom = bottom)
-            if max(missed_counts) != 0: # To render nier plots when there is no missed shift (eg if asd_thr = 1)
-                bottom = counts - missed_counts
-                graph2 = ax.bar(classes, missed_counts, bottom = bottom)
+                bottom = 0
+                graph1 = ax.bar(classes, counts - missed_counts, bottom = bottom)
+                if max(missed_counts) != 0: # To render nier plots when there is no missed shift (eg if asd_thr = 1)
+                    bottom = counts - missed_counts
+                    graph2 = ax.bar(classes, missed_counts, bottom = bottom)
             
             
-            #i = 0
-            for i in range(len(classes)):
-                bar1 = graph1[i]
-                if max(missed_counts) != 0:
-                    bar2 = graph2[i]
-                width = bar1.get_width()
-                if max(missed_counts) != 0:
-                    height = bar1.get_height() + bar2.get_height()
+                #i = 0
+                for i in range(len(classes)):
+                    bar1 = graph1[i]
+                    if max(missed_counts) != 0:
+                        bar2 = graph2[i]
+                    width = bar1.get_width()
+                    if max(missed_counts) != 0:
+                        height = bar1.get_height() + bar2.get_height()
+                    else:
+                        height = bar1.get_height()
+                    x, y = bar1.get_xy()
+                    ax.text(x+width/2,
+                            y+height*1.01,
+                            f"{counts[i]/np.sum(counts)*100:.2f}%",
+                            ha="center",
+                            weight="bold")
+                    #i += 1
+            
+                ax.legend(["No brkpoint", "Brkpoint"])
+                ax.set_title(self.name)
+                ax.set_xlabel("Infered class")
+                ax.set_ylabel("Number of time series")
+            
+            
+            
+            
+            
+            
+            
+            elif ref_classification["outlist"].keys() == self.classification["outlist"].keys():
+                
+                # Count
+                l_id = self.classification["outlist"].keys()
+                l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
+                classes = []
+                counts = []
+                missed_counts = []
+                original_counts = []
+
+                for cl in set(l_class):
+                    classes.append(cl)
+                    counts.append(len([x for x in l_class if x == cl]))
+                    missed_counts.append(len([ts_id for ts_id in l_id if self.classification["outlist"][ts_id]["best_traj"]["class"] == cl and self.classification["outlist"][ts_id]["res"]["n_brk_asd"] > 0]))
+                    original_counts.append(len([ts_id for ts_id in l_id if ref_classification["outlist"][ts_id]["best_traj"]["class"] == cl]))
+                
+            
+                # Order the list for more understandable plot
+                order = ["no_change", "linear", "quadratic", "abrupt"]
+                classes, counts, missed_counts, original_counts = zip(*sorted(zip(classes, counts, missed_counts, original_counts), key = lambda x:order.index(x[0])))
+            
+                # Bar plot
+                if ax is None:
+                    ax = plt.gca()
+            
+                counts = np.array(counts)
+                missed_counts = np.array(missed_counts)
+                original_counts = np.array(original_counts)
+                
+                min_c_oc = [min(counts[i], original_counts[i]) for i in range(len(counts))] # To account for negative new time series number in the abrupt class
+                min_c_oc = np.array(min_c_oc)
+            
+                bottom = 0
+                graph1 = ax.bar(classes, min_c_oc - missed_counts, bottom = bottom)
+                if max(missed_counts) != 0: # To render nicer plots when there is no missed shift (eg if asd_thr = 1)
+                    bottom = min_c_oc - missed_counts
+                    graph2 = ax.bar(classes, missed_counts, bottom = bottom)
+                
+                if max(np.abs(counts - original_counts)) != 0:
+                    bottom = min_c_oc
+                    graph3 = ax.bar(classes, np.abs(counts - original_counts), bottom = bottom, color = "purple")
+                    for i in range(len(graph3)):
+                        if counts[i] < original_counts[i]:
+                            bar = graph3[i]
+                            bar.set_facecolor("none")
+                            bar.set_linestyle("--")
+                            bar.set_edgecolor("purple")
+                            bar.set_linewidth(3)
+            
+            
+                #i = 0
+                for i in range(len(classes)):
+                    bar1 = graph1[i]
+                    if max(missed_counts) != 0:
+                        bar2 = graph2[i]
+                    if max(counts - original_counts) != 0:
+                        bar3 = graph3[i]
+                        
+                    width = bar1.get_width()
+                    if max(missed_counts) != 0 and max(counts - original_counts) != 0:
+                        height = bar1.get_height() + bar2.get_height() + bar3.get_height()
+                    elif max(missed_counts) != 0 and max(counts - original_counts) == 0:
+                        height = bar1.get_height() + bar2.get_height()
+                    elif max(missed_counts) == 0 and max(counts - original_counts) != 0:
+                        height = bar1.get_height() + bar3.get_height()
+                    else:
+                        height = bar1.get_height()
+                    x, y = bar1.get_xy()
+                    if counts[i] < original_counts[i]: #The number has to be a little bit higher when there is the dashed line
+                        ax.text(x+width/2,
+                                y+height*1.03,
+                                f"{counts[i]/np.sum(counts)*100:.2f}%",
+                                ha="center",
+                                weight="bold")
+                    
+                    else:
+                        ax.text(x+width/2,
+                                y+height*1.01,
+                                f"{counts[i]/np.sum(counts)*100:.2f}%",
+                                ha="center",
+                                weight="bold")
+                    #i += 1
+            
+                if "graph2" in locals(): # Don't display the breakpoint legend if there is none
+                    ax.legend(["No brkpoint", "Brkpoint", "Was abrupt"])
                 else:
-                    height = bar1.get_height()
-                x, y = bar1.get_xy()
-                ax.text(x+width/2,
-                        y+height*1.01,
-                        f"{counts[i]/np.sum(counts)*100:.2f}%",
-                        ha="center",
-                        weight="bold")
-                #i += 1
+                    ax.legend(["No brkpoint", "Was abrupt"])
+                ax.set_title(self.name)
+                ax.set_xlabel("Infered class")
+                ax.set_ylabel("Number of time series")
             
-            ax.legend(["No brkpoint", "Brkpoint"])
-            ax.set_title(self.name)
-            ax.set_xlabel("Infered class")
-            ax.set_ylabel("Number of time series")
+            else:
+                raise Exception("The reference classification provided and the internal classification do not have the same entries.")
             
             return ax
     
@@ -932,7 +1038,7 @@ class TS_list(object):
                      xmin = start[i],
                      xmax = stop[i])
         
-        ax.set_title("Duration of the time series")
+        ax.set_title(self.name)
         if xlabel is None:
             xlabel = "Time (arb.u.)"
         ax.set_xlabel(xlabel)
