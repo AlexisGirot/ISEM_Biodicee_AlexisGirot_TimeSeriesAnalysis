@@ -414,12 +414,13 @@ class TS_list(object):
                    "classification":self.classification}\
                   , file)
     
-    def bar_plot(self, ax = None, ref_classification = None):
+    def bar_plot(self, ax = None, missed_abrupt = True, ref_classification = None):
         """
         Make a plot of the different infered classes. The color can indicate the potentially missed shifts
         
         Parameters:
             ax : The ax on which to plot
+            missed_abrupt : Whether to display the time series presenting a breakpoint
             ref_classification : a reference with which to compare the classification (adds a color for time series that has changed class)
         
         Returns:
@@ -443,7 +444,7 @@ class TS_list(object):
             
             
             
-            if ref_classification is None:
+            if ref_classification is None and missed_abrupt:
                 
                 # Count
                 l_id = self.classification["outlist"].keys()
@@ -500,7 +501,49 @@ class TS_list(object):
                 ax.set_ylabel("Number of time series")
             
             
+            elif ref_classification is None and not missed_abrupt:
+                
+                # Count
+                l_id = self.classification["outlist"].keys()
+                l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
+                classes = []
+                counts = []
+
+                for cl in set(l_class):
+                    classes.append(cl)
+                    counts.append(len([x for x in l_class if x == cl]))
+                
             
+                # Order the list for more understandable plot
+                order = ["no_change", "linear", "quadratic", "abrupt"]
+                classes, counts = zip(*sorted(zip(classes, counts), key = lambda x:order.index(x[0])))
+            
+                # Bar plot
+                if ax is None:
+                    ax = plt.gca()
+            
+                counts = np.array(counts)
+            
+                bottom = 0
+                graph = ax.bar(classes, counts, bottom = bottom)
+
+            
+            
+                for i in range(len(classes)):
+                    bar = graph[i]
+                    width = bar.get_width()
+                    height = bar.get_height()
+                    x, y = bar.get_xy()
+                    ax.text(x+width/2,
+                            y+height*1.01,
+                            f"{counts[i]/np.sum(counts)*100:.2f}%",
+                            ha="center",
+                            weight="bold")
+                    #i += 1
+            
+                ax.set_title(self.name)
+                ax.set_xlabel("Infered class")
+                ax.set_ylabel("Number of time series")            
             
             
             
