@@ -31,18 +31,17 @@ robjects.r.source(current_dir + "/" + source_file)
 
 
 
-def rpy2_to_python(rpy2_object):
+def rpy2_to_python(rpy2_object) -> dict:
     """
-    Transform a rpy2 object into nested dict to make it easier to manipulate and save using json
-    Computes the result recursively
+    Transform a rpy2 object into nested dict to make it easier to manipulate and save using json  
+    Computes the result recursively  
+    It is necessary for the package to work, but appart from specific usages you should not need to call it by yourself.
     
-    Parameters
-    ----------
-    rpy2_object : some rpy2 container
+    Parameters:
+        rpy2_object : some rpy2 container, typically returned by the R classification function.
     
-    Returns
-    -------
-    return_container : a python container (dict, np.ndarray, etc)
+    Returns:
+        return_container : a python container (dict, np.ndarray, etc), which corresponds to the same data
     """
     
     if str(type(rpy2_object)) == "<class 'rpy2.rinterface_lib.sexp.NACharacterType'>":
@@ -73,27 +72,26 @@ def rpy2_to_python(rpy2_object):
 
 def load_data(file, method, delimiter = ',', cols = None, rows = None, col_time = None, to_keep = None):
     """
-    Load the data in file f and format it in a form suitable for analysis
-    
-    Parameters
-    ----------
-    file : file object
-            Should point to a .csv file
-    method : str
-            Possible values: "by_col", 'by_row', 'each_col'
-    delimiter : char
-    cols : {"id":(str, str, ...), "time":str, "Y":str}
+    Load the data in file f and format it in a form suitable for analysis.  
+    It is necessary for the package to work, but appart from specific usages you should not need to call it by yourself.
+
+    Parameters:
+	file : file object
+	            Should point to a .csv file
+	method : str
+        	    Possible values: "by_col", 'by_row', 'each_col'
+    	delimiter : char
+    	cols : {"id":(str, str, ...), "time":str, "Y":str}
             When using the "by_col" method
-    rows = {"id:(str, str, ...)", "time":[str, str, str]}
+        rows = {"id:(str, str, ...)", "time":[str, str, str]}
             When using the "by_row" method
-    col_time : str
+        col_time : str
             When using the "each_col" method
-    to_keep = (str, str, ...)
+        to_keep = (str, str, ...)
             A list of columns to keep
     
-    Returns
-    -------
-    dict{dicts{numpy.ndarrays}} = {id:{"scen":np.ndarray, "X":np.ndarray, "Y":np.ndarray}}
+    Returns:
+        dict{dicts{numpy.ndarrays}} = {id:{"scen":np.ndarray, "X":np.ndarray, "Y":np.ndarray}}
     """
     
     reader = csv.DictReader(file, delimiter = delimiter)
@@ -161,14 +159,14 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, col_time 
         for row in reader:
             for k in row.keys():
                 if k != col_time and row[k] not in ("NULL", "NA", ""):
-                    if k not in data:
-                        data[k] = {"id":[k],
+                    if (k,) not in data:
+                        data[(k,)] = {"id":[k],
                                    "X":[int(row[col_time])],
                                    "Y":[float(row[k])]}
                     else:
-                        data[k]["id"].append(k)
-                        data[k]["X"].append(int(row[col_time]))
-                        data[k]["Y"].append(float(row[k]))
+                        data[(k,)]["id"].append(k)
+                        data[(k,)]["X"].append(int(row[col_time]))
+                        data[(k,)]["Y"].append(float(row[k]))
     
     else:
         raise ValueError(f"Method {method} not implemented.")
@@ -207,17 +205,15 @@ def dict_to_dataframes(data):
 
     return robjects.ListVector(dataframes)
 
-def unstr_name(name):
+def unstr_name(name: str) -> tuple:
     """
     The names of the time series have been converted from tuple to str for JSON serialization. This function does the inverse process
     
-    Parameters
-    ----------
-    name : str
+    Parameters:
+        name : The name of the time series in the classification list.
     
-    Returns
-    -------
-    tuple
+    Returns:
+        The name of the time series in the time series list.
     """
     
     tup = name[1:-1].split(',')
@@ -228,6 +224,48 @@ def unstr_name(name):
         return tuple(tup)
 
 class TS_list(object):
+    """
+    A class that represents a list of time series.
+    
+    Attributes:
+        name : str
+        	The name of the time series list
+        df_list : a list of data frames representing the data (necessary to interface with R)
+        classification : dict
+        	The result of the classification after it is run
+        time_series : dict
+        	A dictionary each element of which is a dictionary representing one time series
+        saved_time_series : dict
+        	The same as time_series, but the time series identifiers are turned to a str to allow JSON serialization
+        is_log_transformed : bool
+        	Indicates whether the Y data was log_transformed or not
+    
+    Methods:
+    	hist(self, ax = None, nb_bins = 20) :
+    		Displays a histogram of the length of the time series
+    	classify(self, method = "aic_asd", asd_thr = 0.1, min_len = 20) :
+    		Classifies the time series in four classes: no_change, linear, quadratic, abrupt
+    	save(self, file, saving_name = None) -> None:
+    		Saves a time series lsit and the classification results to a file
+    	bar_plot(self, ax = None):
+    		Displays the classification results as a bar plot of the percentage of the time series falling in each class
+    	confusion_matrix(self, expected_class_column, ax = None):
+    		Compares the classification to an expected classification when there is one
+    	plot(self, time_series_id, ax = None, xlabel = "Time (arb. u.)", linetype = 'o-', title = None):
+    		Plots a time series from the list, the ID of which has to be specified
+    	confusion_matrix_abruptness(self, expected_class_column, ax = None):
+    		Compares the  abruptness classification to the expected abruptness when there is one
+    	mc_classify(self, method = "aic_asd", asd_thr = 0.1, min_len = 20):
+    		Classifies the data in parallel, taking advantage of the several cores of the machine used
+    	log_transform(self) -> None:
+    		Applies y -> ln(1+y) to the y data of all the time series
+    	__getitem__(self, index):
+    		A tool for subsetting the list
+    	__truediv__(self, other):
+    		Compare two classifications of the same time series, displaying a confusion matrix
+    	__floordiv__(self, other):
+    		Compare two abruptness classifications of the same time series, displaying a confusion matrix
+    """
     def __init__(self, data, method = None, delimiter = ',', cols = None, rows = None, col_time = None, to_keep = None, name = "Some list of time series", is_log_transformed = False):
         self.name = name
         self.df_list = None
@@ -280,16 +318,20 @@ class TS_list(object):
     
     def hist(self, ax = None, nb_bins = 20):
         """
-        Provides a histogram in the form of a subplot
+        Provides a length histogram in the form of a subplot
         
-        Parameters
-        ----------
-        ax : ax object
-        nb_bins : int
+        Parameters:
+            ax : ax object
+            nb_bins : int, the number of bins in the histogram
         
-        Returns
-        -------
-        Subplot
+        Returns:
+            Subplot
+        
+        Example:
+            Plot a length histogram:
+            
+            	ts_l.hist()
+            	plt.show()
         """
         
         if ax is None:
@@ -304,19 +346,17 @@ class TS_list(object):
         
         return ax
     
-    def classify(self, method = "aic_asd", asd_thr = 0.1, min_len = 20):
+    def classify(self, method:str = "aic_asd", asd_thr:float = 0.1, min_len:int = 20) -> dict:
         """
         Classify the time series using Mathieu's code
         
-        Parameters
-        ----------
-        method : str
-        asd_thr : float in [0,1]
-        min_len : int
+        Parameters:
+            method : The method to use in the classification
+            asd_thr : In [0,1], the threshold value for breakpoint validation
+            min_len : The minimal length of the time series used for classification
         
-        Returns
-        -------
-        dict : Need to return for the parralel computation to work
+        Returns:
+            Needs to be returned for the parralel computation to work
         """
         if self.df_list is None:
             print(f"{self.name}: Building self.df_list")
@@ -347,18 +387,19 @@ class TS_list(object):
         print(f"{self.name}: Returning the result")
         return self.classification
     
-    def save(self, file, saving_name = None):
+    def save(self, file, saving_name: str= None) -> None:
         """
         Saves the object to a JSON file, including the time series and classifications
         
-        Parameters
-        ----------
-        file : a JSON file object
+        Parameters:
+            file : The JSON file in which to save the data
+            saving_name : The name that the time series object will have when loaded (/!\ different from the file name)
         
-        
-        Returns
-        -------
-        None
+        Example:
+            Save the time series list ts_l object in the file "some_file.json":
+            
+                with open("some_file.json", "r") as f:
+                    ts_l.save(f)
         """
         # Keys must be str, not tuples for JSON serialization
         
@@ -377,13 +418,20 @@ class TS_list(object):
         """
         Make a plot of the different infered classes. The color can indicate the potentially missed shifts
         
-        Parameters
-        ----------
-        ax : subplot.ax
+        Parameters:
+            ax : The ax on which to plot
         
-        Returns
-        -------
-        Subplot
+        Returns:
+            Subplot
+            
+        Example:
+            Plot the classification of two time series lists ts_l1 and ts_l2 to compare them:
+            
+                fig, ax = plt.subplots(nrows = 1, ncols = 2, figsize = (12,5), tight_layout = True)
+                ts_l1.bar_plot(ax = ax[0])
+                ts_l2.bar_plot(ax = ax[1])
+                plt.suptitle("Comparing the classifications of two time series lists")
+                plt.show()
         """
         
         if self.classification is None:
@@ -497,21 +545,28 @@ class TS_list(object):
         
         return pl
 
-    def plot(self, time_series_id, ax = None, xlabel = "Time (arb. u.)", linetype = 'o-', title = None):
+    def plot(self, time_series_id: tuple, ax = None, xlabel: str = "Time (arb. u.)", linetype: str = 'o-', title: str = None):
         """
-        Make a plot of the specified time series
+        Make a temporal plot of the specified time series
         
-        Parameters
-        ----------
-        time_series_id : tuple
-        ax : subplot.ax
-        xlabel : str
-        linetype : str
-        title : str (the to_keep columb in which to fetch the title). If None, the time series id will be the title
+        Parameters:
+            time_series_id : ID of the time series to plot (use ts_l.time_series.keys() to get a list of the IDs)
+            ax : ax on which to plot the time series
+            xlabel : the name of the x (time) axis
+            linetype : same as in plt.plot : 'o-' (default) for doted line, '-' for line (eg for long time series)
+            title : the column in which to fetch the title (this column has to have been kept using the "to_keep" option when loading from a csv file). If None, the time series id will be the title.
         
-        Returns
-        -------
-        Subplot
+        Returns:
+            Subplot
+        
+        Example:
+            Plot the two first time series of the list ts_l:
+            
+                l_id = list(ts_l.time_series.keys()) #Need to convert to a list to access element by index later
+                fig, ax = plt.subplots(nrows = 1, ncols = 2, figsize = (12,5), tight_layout = True)
+                ts_l.plot(l_id[0], ax[0], title = "The first time series!")
+                ts_l.plot(l_id[1], ax[1], title = "The second time series!")
+                plt.show()
         """
         
         X = self.time_series[time_series_id]["X"]
@@ -599,14 +654,18 @@ class TS_list(object):
         """
         Classify the time series using Mathieu's code in a multicore framework
         
-        Parameters
-        ----------
-        method : str
-        asd_thr : float in [0,1]
+        Parameters:
+            method : str
+            asd_thr : float in [0,1]
         
-        Returns
-        -------
-        None
+        Returns:
+            None
+        
+        Example:
+        	Classify the time series list ts_l with asd_thr = 0.15:
+        	
+        		ts_l.mc_classify(asd_thr = 0.15)
+        
         """
         
         self.asd_thr = asd_thr
@@ -646,17 +705,20 @@ class TS_list(object):
         return self.classification
             
             
-    def log_transform(self):
+    def log_transform(self) -> None:
         """
-        (Inplace) log transforms the Y data /!\ The initial data is not preserved /!\
+        (Inplace) log transforms the Y data  
+        /!\ The initial data is not preserved /!\\
         
-        Parameters
-        ----------
-        None
-        
-        Returns
-        -------
-        None
+        Example:
+            Log-transform the ts_l time series list:
+            
+                ts_l.log_transform()
+            
+            Log-transform the ts_l time series list, keeping initial data:
+            
+                ts_l2 = TS_list(ts_l)
+                ts_l2.log_transform()
         """
         
         for ts_id in self.time_series.keys():
@@ -834,3 +896,45 @@ class TS_list(object):
         ax.set_yticks(ticks = range(len(labels)), labels = labels)
         
         return pl
+    
+    def time_span(self, ax = None, xlabel = None):
+        """
+        Plots horizontal lines showing the start and end of each time series
+        
+        Parameters:
+            ax : ax object
+            xlabel : str, the name of the x axis
+           
+        Returns:
+            Subplot
+        
+        Example:
+            Plot the time span:
+            
+                ts_l.time_span()
+                plt.show()
+        
+        """
+        
+        if ax is None:
+            ax = plt.gca()
+        
+        
+        l_id = list(self.time_series.keys())
+        start = [min(self.time_series[ide]["X"]) for ide in l_id]
+        stop = [max(self.time_series[ide]["X"]) for ide in l_id]
+        
+        #Order by start value
+        start, stop = zip(*sorted(zip(start, stop), key = lambda x:x[0]))
+        
+        for i in range(len(l_id)):
+            ax.hlines(y = i,
+                     xmin = start[i],
+                     xmax = stop[i])
+        
+        ax.set_title("Duration of the time series")
+        if xlabel is None:
+            xlabel = "Time (arb.u.)"
+        ax.set_xlabel(xlabel)
+        
+        return ax
