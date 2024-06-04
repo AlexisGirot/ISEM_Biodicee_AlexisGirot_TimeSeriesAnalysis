@@ -95,7 +95,7 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, col_time 
     """
     
     reader = csv.DictReader(file, delimiter = delimiter)
-    
+
     data = {}
     
     if method == "by_col":
@@ -160,11 +160,11 @@ def load_data(file, method, delimiter = ',', cols = None, rows = None, col_time 
             for k in row.keys():
                 if k != col_time and row[k] not in ("NULL", "NA", ""):
                     if (k,) not in data:
-                        data[(k,)] = {"id":[k],
+                        data[(k,)] = {"id":[str((k,))],
                                    "X":[int(row[col_time])],
                                    "Y":[float(row[k])]}
                     else:
-                        data[(k,)]["id"].append(k)
+                        data[(k,)]["id"].append(str((k,)))
                         data[(k,)]["X"].append(int(row[col_time]))
                         data[(k,)]["Y"].append(float(row[k]))
     
@@ -548,7 +548,7 @@ class TS_list(object):
             
             
             
-            elif ref_classification["outlist"].keys() == self.classification["outlist"].keys():
+            elif ref_classification is not None and missed_abrupt and ref_classification["outlist"].keys() == self.classification["outlist"].keys():
                 
                 # Count
                 l_id = self.classification["outlist"].keys()
@@ -639,8 +639,84 @@ class TS_list(object):
                 ax.set_xlabel("Infered class")
                 ax.set_ylabel("Number of time series")
             
-            else:
+            elif ref_classification is not None and ref_classification["outlist"].keys() != self.classification["outlist"].keys():
                 raise Exception("The reference classification provided and the internal classification do not have the same entries.")
+            
+            else: #Blue and purple
+                l_id = self.classification["outlist"].keys()
+                l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
+                classes = []
+                counts = []
+                original_counts = []
+
+                for cl in set(l_class):
+                    classes.append(cl)
+                    counts.append(len([x for x in l_class if x == cl]))
+                    original_counts.append(len([ts_id for ts_id in l_id if ref_classification["outlist"][ts_id]["best_traj"]["class"] == cl]))
+
+
+                # Order the list for more understandable plot
+                order = ["no_change", "linear", "quadratic", "abrupt"]
+                classes, counts, original_counts = zip(*sorted(zip(classes, counts, original_counts), key = lambda x:order.index(x[0])))
+
+                # Bar plot
+                if ax is None:
+                    ax = plt.gca()
+
+                counts = np.array(counts)
+                original_counts = np.array(original_counts)
+
+                min_c_oc = [min(counts[i], original_counts[i]) for i in range(len(counts))] # To account for negative new time series number in the abrupt class
+                min_c_oc = np.array(min_c_oc)
+
+                bottom = 0
+                graph1 = ax.bar(classes, min_c_oc, bottom = bottom)
+
+                if max(np.abs(counts - original_counts)) != 0:
+                    bottom = min_c_oc
+                    graph2 = ax.bar(classes, np.abs(counts - original_counts), bottom = bottom, color = "purple")
+                    for i in range(len(graph2)):
+                        if counts[i] < original_counts[i]:
+                            bar = graph2[i]
+                            bar.set_facecolor("none")
+                            bar.set_linestyle("--")
+                            bar.set_edgecolor("purple")
+                            bar.set_linewidth(3)
+
+
+                #i = 0
+                for i in range(len(classes)):
+                    bar1 = graph1[i]
+                    if max(counts - original_counts) != 0:
+                        bar2 = graph2[i]
+    
+                    width = bar1.get_width()
+                    if max(counts - original_counts) != 0:
+                        height = bar1.get_height() + bar2.get_height()
+                    else:
+                        height = bar1.get_height()
+                    x, y = bar1.get_xy()
+                    if counts[i] < original_counts[i]: #The number has to be a little bit higher when there is the dashed line
+                        ax.text(x+width/2,
+                                y+height*1.03,
+                                f"{counts[i]/np.sum(counts)*100:.2f}%",
+                                ha="center",
+                                weight="bold")
+    
+                    else:
+                        ax.text(x+width/2,
+                                y+height*1.01,
+                                f"{counts[i]/np.sum(counts)*100:.2f}%",
+                                ha="center",
+                                weight="bold")
+                    #i += 1
+    
+                ax.legend(["No brkpoint", "Was abrupt"])
+                ax.set_title(self.name)
+                ax.set_xlabel("Infered class")
+                ax.set_ylabel("Number of time series")
+    
+                
             
             return ax
     
@@ -915,6 +991,9 @@ class TS_list(object):
             new_ts_list = TS_list(data = new_data,
                            name = self.name,
                            is_log_transformed = self.is_log_transformed)
+            
+            if self.classification is not None:
+                new_ts_list.classification = {"outlist": {k:self.classification["outlist"][k] for k in self.classification["outlist"].keys() if unstr_name(k) in new_ts_list.time_series.keys()}}
         
         elif type(index) == str:
             new_data = {}
@@ -1087,3 +1166,58 @@ class TS_list(object):
         ax.set_xlabel(xlabel)
         
         return ax
+
+    def pie_chart(self, ax = None):
+        """
+        Draws a pie chart of the classification
+        
+        Parameters:
+            ax : The ax on which to plot
+
+        Returns:
+            Subplot
+        """
+        
+        if self.classification is None:
+            raise Exception("The data has not been classified yet. Please run the classification before trying to analyse its results.")
+
+        
+        else:
+            if ax is None:
+                ax = plt.gca()
+            
+            l_id = self.classification["outlist"].keys()
+            l_class = [self.classification["outlist"][ts_id]["best_traj"]["class"] for ts_id in l_id]
+            #l_trend = [self.classification["outlist"][ts_id]["best_traj"]["trend"] for ts_id in l_id]
+            classes = []
+            #trends = []
+            counts_classes = []
+            #counts_trends = []
+            
+            for cl in set(l_class):
+                classes.append(cl)
+                counts_classes.append(len([x for x in l_class if x == cl]))
+            
+            
+            
+#             for tr in set(l_trend):
+#                 trends.append(tr)
+#                 counts_trends.append(len([x for x in l_trend if x == tr]))
+            
+            # Order the list for more understandable plot
+            order_classes = ["no_change", "linear", "quadratic", "abrupt"][:len(classes)] #To improve (works only if the missing class is abrupt)
+            color_classes = ["y","g","b","r"][:len(classes)]
+            classes, counts_classes = zip(*sorted(zip(classes, counts_classes), key = lambda x:order_classes.index(x[0])))
+            #order_trends = ["decrease", "increase", "stable"]
+            #color_trends = ["red", "blue", "yellow"]
+            
+            counts_classes = np.array(counts_classes)
+            #counts_trends = np.array(counts_trends)
+            
+            wedgeprops = {'width': 0.4, 'edgecolor': 'w'}
+            
+            #ax.pie(counts_trends, colors = color_trends, labels = order_trends, radius = 1, labeldistance = 1.1, pctdistance = 0.9)
+            ax.pie(counts_classes, colors = color_classes, labels = order_classes, wedgeprops = wedgeprops, radius = 1, labeldistance = 1.1, pctdistance = 0.9, textprops={'fontsize': 18})
+            ax.set_title(self.name)
+            
+            return ax
